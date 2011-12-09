@@ -1,2 +1,1 @@
-An example implementation of simple stack bytecode VMs used in my class.
-
+A simple stack-based bytecode VM implementation used in my class
