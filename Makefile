@@ -104,4 +104,5 @@ vmbench.o: vmbench.c vm.h
 clean:
 	rm -f $(TEST_EXES) $(BENCH_EXES)
 	rm -f $(OBJS)
+	rm -rf *.dSYM
 	rm -f *~ *.exe
