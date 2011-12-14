@@ -5,7 +5,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "vm.h"
+#include "fun.h"
 
 #define VS_SIZE 256
 #define GV_SIZE 8

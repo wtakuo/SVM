@@ -78,17 +78,6 @@ void vm (Bcode code[], size_t codelen,
          Value gv[], size_t gv_size,
          vm_mode_t mode);
 
-typedef struct _Function {
-    size_t nargs;    /* # of arguments */
-    size_t nlv;      /* # of local variables (except for args) */
-    Bcode *code;
-    size_t codelen;  
-} *Function;
-
-Function new_function (size_t nargs, size_t nlv, Bcode code[], size_t codelen);
-
-void delete_function (Function f);
-
 void dump_vm (long nsteps, Bcode *ip, Bcode code[],
               Value *lv, Value *fp, Value *sp, Value *vs_base,
               Value gv[], size_t gv_size, vm_mode_t mode);

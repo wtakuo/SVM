@@ -1,108 +1,69 @@
 # SVM Makefile 
 
-TESTARGS = 8
-BENCHARGS = 13 6 0
+TEST_ARGS = 8
+BENCH_ARGS = 13 6 0
 
-SRCS = svm.c tvm.c fun.c vmdebug.c \
-       test1.c test2.c test3.c vmtest.c vmbench.c cbench.c
-OBJS = $(subst .c,.o,$(SRCS)) svm_bench.o tvm_bench.o fun_bench.o
-TEST_EXES = svmtest1 svmtest2 svmtest3 tvmtest1 tvmtest2 tvmtest3
+VM_SRCS = svm.c tvm.c
+LIB_SRCS = fun.c vmdebug.c vmtest.c
+TEST_SRCS = test1.c test2.c test3.c
+BENCH_SRCS = vmbench.c cbench.c
+SRCS = $(VM_SRCS) $(LIB_SRCS) $(TEST_SRCS) $(BENCH_SRCS)
+OBJS = $(SRCS:%.c=%.o) svm_opt.o tvm_opt.o fun_opt.o vmbench_opt.o
+DEPS = $(OBJS:%.o=%.d)
+
+TEST_EXES = $(TEST_SRCS:test%.c=svmtest%) $(TEST_SRCS:test%.c=tvmtest%)
 BENCH_EXES = svmbench tvmbench cbench
 
 CC = gcc
-CFLAGS = -std=c99 -Wall -g
-TVM_CFLAGS = -std=gnu99 -Wall
-BENCH_FLAGS = -O3 -DDISABLE_EXECUTION_TRACE
-TIME = time
-RM = rm -f
+CPPFLAGS =
+OPTFLAGS = -O3 -DDISABLE_EXECUTION_TRACE
+DEBUGFLAGS = -g
+LDFLAGS =
+CFLAGS = -std=gnu99 -Wall -Werror -MMD $(DEBUGFLAGS)
+
+TIME = time -p
+
+.PHONY: all clean svmtest tvmtest bench
 
 all: $(TEST_EXES) $(BENCH_EXES)
 
-test: svmtest tvmtest
-
 svmtest: $(TEST_EXES)
-	./svmtest1 $(TESTARGS)
-	./svmtest2 $(TESTARGS)
-	./svmtest3 $(TESTARGS)
+	./svmtest1 $(TEST_ARGS)
+	./svmtest2 $(TEST_ARGS)
+	./svmtest3 $(TEST_ARGS)
 
 tvmtest: $(TEST_EXES)
-	./tvmtest1 $(TESTARGS)
-	./tvmtest2 $(TESTARGS)
-	./tvmtest3 $(TESTARGS)
+	./tvmtest1 $(TEST_ARGS)
+	./tvmtest2 $(TEST_ARGS)
+	./tvmtest3 $(TEST_ARGS)
 
 bench: $(BENCH_EXES)
-	$(TIME) ./svmbench $(BENCHARGS)
-	$(TIME) ./svmbench $(BENCHARGS)
-	$(TIME) ./tvmbench $(BENCHARGS)
-	$(TIME) ./tvmbench $(BENCHARGS)
-	$(TIME) ./cbench $(BENCHARGS)
-	$(TIME) ./cbench $(BENCHARGS)
+	$(TIME) ./svmbench $(BENCH_ARGS)
+	$(TIME) ./tvmbench $(BENCH_ARGS)
+	$(TIME) ./cbench $(BENCH_ARGS)
 
-svmtest1: fun.o vmdebug.o vmtest.o svm.o test1.o
-	$(CC) $(CFLAGS) -o $@ $^
+svmtest%: svm.o fun.o vmdebug.o vmtest.o test%.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
-svmtest2: fun.o vmdebug.o vmtest.o svm.o test2.o
-	$(CC) $(CFLAGS) -o $@ $^
+tvmtest%: tvm.o fun.o vmdebug.o vmtest.o test%.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
-svmtest3: fun.o vmdebug.o vmtest.o svm.o test3.o
-	$(CC) $(CFLAGS) -o $@ $^
+%_opt.o: %.c
+	$(CC) $(CFLAGS) $(OPTFLAGS) -c -o $@ $<
 
-tvmtest1: fun.o vmdebug.o vmtest.o tvm.o test1.o
-	$(CC) $(CFLAGS) -o $@ $^
+svmbench: svm_opt.o fun_opt.o vmbench_opt.o
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(LDFLAGS) -o $@ $^
 
-tvmtest2: fun.o vmdebug.o vmtest.o tvm.o test2.o
-	$(CC) $(CFLAGS) -o $@ $^
-
-tvmtest3: fun.o vmdebug.o vmtest.o tvm.o test3.o
-	$(CC) $(CFLAGS) -o $@ $^
-
-svmbench: fun_bench.o svm_bench.o vmbench.o
-	$(CC) $(CFLAGS) $(BENCH_FLAGS) -o $@ $^
-
-tvmbench: fun_bench.o tvm_bench.o vmbench.o
-	$(CC) $(TVM_CFLAGS) $(BENCH_FLAGS) -o $@ $^
+tvmbench: tvm_opt.o fun_opt.o vmbench_opt.o
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(LDFLAGS) -o $@ $^
 
 cbench: cbench.c
-	$(CC) $(CFLAGS) $(BENCH_FLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(LDFLAGS) -o $@ $^
 
-svm.o: svm.c vm.h
-	$(CC) $(CFLAGS) -c $<
-
-svm_bench.o: svm.c vm.h
-	$(CC) $(CFLAGS) $(BENCH_FLAGS) -c -o $@ $<
-
-tvm.o: tvm.c vm.h
-	$(CC) $(TVM_CFLAGS) -c $<
-
-tvm_bench.o: tvm.c vm.h
-	$(CC) $(TVM_CFLAGS) $(BENCH_FLAGS) -c -o $@ $<
-
-fun.o: fun.c vm.h
-	$(CC) $(CFLAGS) -c $<
-
-fun_bench.o: fun.c vm.h
-	$(CC) $(CFLAGS) $(BENCH_FLAGS) -c -o $@ $<
-
-vmdebug.o: vmdebug.c vm.h
-	$(CC) $(CFLAGS) -c $<
-
-vmtest.o: vmtest.c vm.h
-	$(CC) $(CFLAGS) -c $<
-
-test1.o: test1.c vm.h
-	$(CC) $(CFLAGS) -c $<
-
-test2.o: test2.c vm.h
-	$(CC) $(CFLAGS) -c $<
-
-test3.o: test3.c vm.h
-	$(CC) $(CFLAGS) -c $<
-
-vmbench.o: vmbench.c vm.h
-	$(CC) $(CFLAGS) $(BENCH_FLAGS) -c $<
+-include $(DEPS)
 
 clean:
-	rm -f $(TEST_EXES) $(BENCH_EXES)
-	rm -f $(OBJS)
-	rm -rf *.dSYM
-	rm -f *~ *.exe
+	$(RM) $(TEST_EXES) $(BENCH_EXES)
+	$(RM) $(OBJS) $(DEPS)
+	$(RM) -r *.dSYM a.out *~
+

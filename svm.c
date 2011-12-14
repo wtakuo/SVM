@@ -5,7 +5,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "vm.h"
+#include "fun.h"
 
 void vm (Bcode code[], size_t codelen,
          Value *vs_base, size_t vs_size,

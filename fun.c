@@ -5,7 +5,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "vm.h"
+#include "fun.h"
 
 Function new_function (size_t nargs, size_t nlv, Bcode code[], size_t codelen) {
     Function f = malloc(sizeof(struct _Function));

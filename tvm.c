@@ -5,7 +5,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "vm.h"
+#include "fun.h"
 
 #ifdef DISABLE_EXECUTION_TRACE
 #define NEXT goto **ip
