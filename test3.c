@@ -50,7 +50,7 @@ static Bcode code[] = {
     /* 33 */ i_sicall, 2,
 };
 
-void vmtest (int n, int trace) {
+void vmtest (int n, vm_mode_t trace) {
     int codelen = sizeof(code)/sizeof(Bcode);
     Function f = new_function(2, 0, code + 12, codelen - 12);
     gv[0] = (Value)n;
