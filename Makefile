@@ -11,7 +11,7 @@ SRCS = $(VM_SRCS) $(LIB_SRCS) $(TEST_SRCS) $(BENCH_SRCS)
 OBJS = $(SRCS:%.c=%.o) svm_opt.o tvm_opt.o fun_opt.o vmbench_opt.o
 DEPS = $(OBJS:%.o=%.d)
 
-TEST_EXES = $(TEST_SRCS:test%.c=svmtest%) $(TEST_SRCS:test%.c=tvmtest%)
+TEST_EXES = $(TEST_SRCS:test%.c=svm_test%) $(TEST_SRCS:test%.c=tvm_test%)
 BENCH_EXES = svmbench tvmbench cbench
 
 CC = gcc
@@ -23,33 +23,35 @@ CFLAGS = -std=gnu99 -Wall -Werror -MMD $(DEBUGFLAGS)
 
 TIME = time -p
 
+%_opt.o: %.c
+	$(CC) $(CFLAGS) $(OPTFLAGS) -c -o $@ $<
+
+svm_test%: svm.o fun.o vmdebug.o vmtest.o test%.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
+tvm_test%: tvm.o fun.o vmdebug.o vmtest.o test%.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
 .PHONY: all clean svmtest tvmtest bench
+
+.SECONDARY: $(OBJS)
 
 all: $(TEST_EXES) $(BENCH_EXES)
 
 svmtest: $(TEST_EXES)
-	./svmtest1 $(TEST_ARGS)
-	./svmtest2 $(TEST_ARGS)
-	./svmtest3 $(TEST_ARGS)
+	./svm_test1 $(TEST_ARGS)
+	./svm_test2 $(TEST_ARGS)
+	./svm_test3 $(TEST_ARGS)
 
 tvmtest: $(TEST_EXES)
-	./tvmtest1 $(TEST_ARGS)
-	./tvmtest2 $(TEST_ARGS)
-	./tvmtest3 $(TEST_ARGS)
+	./tvm_test1 $(TEST_ARGS)
+	./tvm_test2 $(TEST_ARGS)
+	./tvm_test3 $(TEST_ARGS)
 
 bench: $(BENCH_EXES)
 	$(TIME) ./svmbench $(BENCH_ARGS)
 	$(TIME) ./tvmbench $(BENCH_ARGS)
 	$(TIME) ./cbench $(BENCH_ARGS)
-
-svmtest%: svm.o fun.o vmdebug.o vmtest.o test%.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
-
-tvmtest%: tvm.o fun.o vmdebug.o vmtest.o test%.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
-
-%_opt.o: %.c
-	$(CC) $(CFLAGS) $(OPTFLAGS) -c -o $@ $<
 
 svmbench: svm_opt.o fun_opt.o vmbench_opt.o
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(LDFLAGS) -o $@ $^
