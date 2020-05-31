@@ -1,1 +1,0 @@
-A simple stack-based bytecode VM implementation used in my class
