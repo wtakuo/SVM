@@ -38,7 +38,7 @@ static Bcode code[] = {
     /* 16 */ i_iload, 0,      /* x */
     /* 18 */ i_iload, 1,      /* y */
     /* 20 */ i_isub,
-    /* 21 */ i_ifle, 0, 47,   /* x <= y ? */
+    /* 21 */ i_ifle, 0, 48,   /* x <= y ? */
     /* 24 */ i_iload, 0,  
     /* 26 */ i_bipush, 1,
     /* 28 */ i_isub,
@@ -62,8 +62,9 @@ static Bcode code[] = {
     /* 64 */ i_icall, 3,
     /* 66 */ i_gaload, 0, 0,
     /* 69 */ i_icall, 3,
-    /* 71 */ i_iload, 1,
-    /* 73 */ i_iret
+    /* 71 */ i_iret,
+    /* 72 */ i_iload, 1,
+    /* 74 */ i_iret
 };
 
 void vmtest (int x, int y, int z, vm_mode_t mode) {
