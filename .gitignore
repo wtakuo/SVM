@@ -1,7 +1,14 @@
-.DS_Store
-*~
+svm_test*
+tvm_test*
+cbench
+svmbench
+tvmbench
+
 *.o
 *.d
 a.out
 *.dSYM
 
+.vscode/
+.DS_Store
+*~
